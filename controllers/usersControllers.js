@@ -1,123 +1,71 @@
 const e = require("express")
 const User = require("../models/users")
+const catchAsync = require("../utils/catchAsync")
 
-exports.verUsuarios = async (req,res) =>{
-    try{
+exports.verUsuarios = catchAsync(async (req, res) => {
 
-        //Sample Filtering
-        const queryObj = {... req.query}
-        const excluderFields = ['page','limit','sort','fields']
-        excluderFields.forEach(el => delete queryObj[el])
+    //Sample Filtering
+    const queryObj = { ...req.query }
+    const excluderFields = ['page', 'limit', 'sort', 'fields']
+    excluderFields.forEach(el => delete queryObj[el])
 
-        //Advance Filtering
-
-    
-     const query =  User.find(queryObj)
-
-     const users = await query;
+    //Advance Filtering
+    const query = User.find(queryObj)
+    const users = await query;
     res.status(201).json({
-            status:'Success',
-            cantidadUsuarios:users.length,
-            users
+        status: 'Success',
+        cantidadUsuarios: users.length,
+        users
     })
-    }catch(err){
-        res.status(201).json({
-            status:"Failed",
-            er
-        })
-    }
-}
+})
 
 //VerUsuario
 
-exports.verUsuario = async (req,res) =>{
-    try{
-        const id = req.params.id;
-        console.log(req.params.id)
-        const user = await User.findById(id)
-        res.status(201).json({
-                status:'Success',
-                user
-        })   
-    }catch(err){
-        res.status(404).json({
-            status:'Failed',
-            err
-        })
-    }
-}
+exports.verUsuario = catchAsync(async (req, res) => {
 
-//CrearUsuario
+    const id = req.params.id;
+    console.log(req.params.id)
+    const user = await User.findById(id)
+    res.status(201).json({
+        status: 'Success',
+        user
+    })
 
-exports.crearUsuario = async (req,res) =>{
-
-    try{
-        const user =  await User.create(req.body)
-        res.status(201).json({
-            status:"Sucess",
-            data:{
-                user
-            }
-        })
-    }catch(err){
-        res.status(404).json({
-            status:"Failed",
-            error:{
-                err
-            }
-        })
-    }
-}
+})
 
 //actualizarUsuario
 
-exports.actualizarUsuario = async (req,res) =>{
-    
-   try{
+exports.actualizarUsuario = catchAsync(async (req, res) => {
     const id = req.params.id;
-
-    const userUpdated = await User.findByIdAndUpdate(id,req.body,{
-        new:true,
-        runValidators:true
+    const userUpdated = await User.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true
     })
-
     res.status(201).json({
         status: 'Sucess',
-        mensaje:' Usuario Actualizado',
+        mensaje: ' Usuario Actualizado',
         userUpdated
     })
-    
-   }catch(err){
-       res.status(404).json({
-           status:'Failed',
-           err
-       })
-   }
-}
+
+})
 
 //Borrar usuario 
+exports.borrarUsuario = catchAsync(async (req, res) => {
 
-exports.borrarUsuario = async (req,res) =>{
+    const id = req.params.id;
+    const user = await User.findByIdAndDelete(req.params.id)
+    res.status(201).json({
+        status: "Sucess",
+        mensaje: "Usuario Eliminado"
+    })
+})
 
-    
-    try{
-        const id = req.params.id;
-
-        const user = await User.findByIdAndDelete(req.params.id)
-
-        res.status(201).json({
-            status:"Sucess",
-            mensaje: "Usuario Eliminado"
-        })
-
-
-    }catch(err){
-        res.status(404).json({
-            status:"Failed",
-            err
-        })
-    }
-
-    
+//Borrar todos los Usuarios 
+exports.borrarUsuarios = catchAsync(async (req, res, next) => {
+    await User.deleteMany()
+    res.status(201).json({
+        status: "Sucess",
+        mensaje: "Usuarios Eliminado"
+    })
 }
-
+)
